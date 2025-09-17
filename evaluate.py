@@ -1,0 +1,53 @@
+import os
+import argparse
+import librosa
+import numpy as np
+from compute_metrics import compute_metrics
+from rich.progress import track
+
+
+def get_dataset_filelist(h):
+    with open(h.input_test_file, 'r', encoding='utf-8') as fi:
+        indexes = [x.split('|')[0] for x in fi.read().split('\n') if len(x) > 0]
+
+    return indexes
+
+
+def main(h):
+    indexes = get_dataset_filelist(h)
+    num = len(indexes)
+    print(f"Number of files: {num}")
+    metrics_total = np.zeros(6)
+    for index in track(indexes):
+        clean_wav = os.path.join(h.clean_wav_dir, index + '.wav')
+        noisy_wav = os.path.join(h.noisy_wav_dir, index + '.wav')
+        clean, sr = librosa.load(clean_wav, sr=h.sampling_rate)
+        noisy, sr = librosa.load(noisy_wav, sr=h.sampling_rate)
+
+        metrics = compute_metrics(clean, noisy, sr, 0)
+        metrics = np.array(metrics)
+        metrics_total += metrics
+
+    metrics_avg = metrics_total / num
+    # Format metrics to 2 decimal places
+    metrics_avg = [round(metric, 2) for metric in metrics_avg]
+
+    print('pesq: ', metrics_avg[0], 'csig: ', metrics_avg[1], 'cbak: ', metrics_avg[2],
+          'covl: ', metrics_avg[3], 'ssnr: ', metrics_avg[4], 'stoi: ', metrics_avg[5])
+
+    file_path = os.path.join(h.noisy_wav_dir, 'output.txt')
+    with open(file_path, 'w') as f:
+        print('pesq: ', metrics_avg[0], 'csig: ', metrics_avg[1], 'cbak: ', metrics_avg[2],
+              'covl: ', metrics_avg[3], 'ssnr: ', metrics_avg[4], 'stoi: ', metrics_avg[5], file=f)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--sampling_rate', type=int, default=16000)
+    parser.add_argument('--input_test_file', default='test.txt')
+    parser.add_argument('--clean_wav_dir', default='path_to_clean_wavs')
+    parser.add_argument('--noisy_wav_dir', default='path_to_noisy_wavs')
+
+    h = parser.parse_args()
+
+    main(h)
