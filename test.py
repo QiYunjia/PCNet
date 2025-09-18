@@ -33,20 +33,20 @@ def main(h):
     metrics_avg = [round(metric, 2) for metric in metrics_avg]
 
     print('pesq: ', metrics_avg[0], 'csig: ', metrics_avg[1], 'cbak: ', metrics_avg[2],
-          'covl: ', metrics_avg[3], 'ssnr: ', metrics_avg[4], 'stoi: ', metrics_avg[5])
+          'covl: ', metrics_avg[3], 'stoi: ', metrics_avg[5])
 
     file_path = os.path.join(h.noisy_wav_dir, 'output.txt')
     with open(file_path, 'w') as f:
         print('pesq: ', metrics_avg[0], 'csig: ', metrics_avg[1], 'cbak: ', metrics_avg[2],
-              'covl: ', metrics_avg[3], 'ssnr: ', metrics_avg[4], 'stoi: ', metrics_avg[5], file=f)
+              'covl: ', metrics_avg[3], 'stoi: ', metrics_avg[5], file=f)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--sampling_rate', type=int, default=16000)
     parser.add_argument('--input_test_file', default='test.txt')
-    parser.add_argument('--clean_wav_dir', default='path_to_clean_wavs')
-    parser.add_argument('--noisy_wav_dir', default='path_to_noisy_wavs')
+    parser.add_argument('--clean_wav_dir', default='/home/lsc/yj/PrimeK-Net/VoiceBank+DEMAND/wavs_clean/wav_clean')
+    parser.add_argument('--noisy_wav_dir', default='Audio Samples')
 
     h = parser.parse_args()
 
